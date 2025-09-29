@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unique Random Quiz Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: linear-gradient(120deg, #43cea2 0%, #185a9d 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .quiz-container {
+      background: #f6fff8;
+      border-radius: 24px;
+      box-shadow: 0 12px 32px rgba(67,206,162,0.18);
+      padding: 38px 30px 28px 30px;
+      width: 370px;
+      animation: fadeIn 1s;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: scale(0.95);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+    h2 {
+      color: #185a9d;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+      font-size: 2rem;
+      text-shadow: 0 2px 8px #43cea233;
+    }
+    .question {
+      font-size: 1.17rem;
+      color: #43cea2;
+      margin-bottom: 18px;
+      font-weight: 500;
+      min-height: 46px;
+      animation: fadeInQ .5s;
+      text-shadow: 0 1px 8px #185a9d22;
+    }
+    @keyframes fadeInQ {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .option-btn {
+      background: #e8ffef;
+      color: #185a9d;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: background .2s, color .2s, transform .15s;
+      outline: none;
+      box-shadow: 0 1px 6px #43cea233;
+    }
+    .option-btn:hover {
+      background: #43cea2;
+      color: #fff;
+      transform: scale(1.04);
+    }
+    .option-btn.correct {
+      background: #20c996;
+      color: #fff;
+      transform: scale(1.08);
+      box-shadow: 0 0 18px #20c996bb;
+      font-weight: bold;
+      border: 2px solid #185a9d;
+    }
+    .option-btn.wrong {
+      background: #e17272;
+      color: #fff;
+      font-weight: bold;
+      border: 2px solid #bb2222;
+      transform: scale(0.97);
+    }
+    .score, .timer {
+      font-size: 1.06rem;
+      margin-bottom: 10px;
+      color: #185a9d;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 6px #43cea233;
+    }
+    .next-btn {
+      background: linear-gradient(90deg,#43cea2 0%,#185a9d 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 10px #43cea233;
+      transition: background .2s;
+    }
+    .next-btn:hover {
+      background: #20c996;
+      color: #185a9d;
+    }
+    .result {
+      font-size: 1.28rem;
+      color: #43cea2;
+      margin-top: 18px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      animation: fadeInQ .7s;
+      text-shadow: 0 4px 16px #185a9d33, 0 1px 6px #43cea233;
+    }
+    .restart-btn {
+      background: #e8ffef;
+      color: #185a9d;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 1.06rem;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background .2s, color .2s;
+      font-weight: bold;
+      box-shadow: 0 1px 6px #43cea233;
+    }
+    .restart-btn:hover {
+      background: #185a9d;
+      color: #fff;
+    }
+    .final-score {
+      font-size: 2.2rem;
+      color: #fff;
+      background: linear-gradient(90deg,#43cea2 0%,#185a9d 100%);
+      border-radius: 16px;
+      padding: 22px 0 18px 0;
+      margin: 16px auto 12px auto;
+      width: 86%;
+      font-weight: bold;
+      box-shadow: 0 4px 24px #43cea233, 0 1px 6px #185a9d33;
+      animation: popUp .7s;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 18px #185a9dcc;
+    }
+    @keyframes popUp {
+      0% { transform: scale(0.7); opacity:0;}
+      100% { transform: scale(1); opacity:1;}
+    }
+    .confetti {
+      position: absolute;
+      left: 0; top: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .answer-key {
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: #20c996;
+      margin: 8px 0 0 0;
+      animation: popUp .6s;
+    }
+    .pool-end {
+      font-size: 1.1rem;
+      color: #bb2222;
+      margin: 20px 0 0 0;
+      font-weight: bold;
+      text-shadow: 0 2px 12px #43cea233;
+      animation: popUp .8s;
+    }
+    @media(max-width:420px){
+      .quiz-container { width: 97vw; padding: 12px 3vw;}
+      h2 { font-size: 1.3rem;}
+      .final-score { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container" id="quiz">
+    <canvas class="confetti" id="confettiCanvas"></canvas>
+    <h2>🧠 Unique Random Quiz Game</h2>
+    <div class="score" id="score"></div>
+    <div class="timer" id="timer"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <button class="next-btn" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next</button>
+    <div class="result" id="result"></div>
+    <div id="answerKey"></div>
+    <div id="finalScoreArea"></div>
+    <button class="restart-btn" id="restartBtn" style="display:none;" onclick="restartQuiz()">Restart</button>
+    <div id="poolEndMsg"></div>
+  </div>
+  <script>
+    // Large question pool (all options arrays have 4 items)
+    const questionPool = [
+      {q:"HTML stands for?",options:["Hyper Transfer Markup Language","Hyper Text Markup Language","Home Tool Markup Language","Hyperlink Text Markup Language"],answer:1},
+      {q:"Which CSS property changes text color?",options:["background-color","color","font-style","text-color"],answer:1},
+      {q:"JavaScript is _____ language.",options:["Programming","Markup","Style Sheet","Database"],answer:0},
+      {q:"Which HTML tag inserts an image?",options:["<img>","<image>","<pic>","<src>"],answer:0},
+      {q:"Symbol for JS comment?",options:["//","#","<!-- -->","**"],answer:0},
+      {q:"World's largest ocean?",options:["Atlantic","Indian","Pacific","Arctic"],answer:2},
+      {q:"2 + 2 × 2 = ?",options:["8","6","4","10"],answer:1},
+      {q:"Fastest land animal?",options:["Cheetah","Lion","Horse","Tiger"],answer:0},
+      {q:"Inventor of telephone?",options:["Edison","Bell","Newton","Tesla"],answer:1},
+      {q:"Which planet is 'Red Planet'?",options:["Venus","Mars","Jupiter","Saturn"],answer:1},
+      {q:"Capital of France?",options:["London","Paris","Berlin","Rome"],answer:1},
+      {q:"CSS stands for?",options:["Computer Style Sheets","Cascading Style Sheets","Creative Style Sheets","Colorful Style Sheets"],answer:1},
+      {q:"First man on moon?",options:["Yuri Gagarin","Neil Armstrong","Buzz Aldrin","Michael Collins"],answer:1},
+      {q:"Who wrote 'Hamlet'?",options:["Milton","Shakespeare","Chaucer","Dickens"],answer:1},
+      {q:"Smallest prime number?",options:["1","2","3","5"],answer:1},
+      {q:"Which gas for breathing?",options:["Nitrogen","Oxygen","Carbon Dioxide","Hydrogen"],answer:1},
+      {q:"Cricket ball color in test?",options:["Red","White","Pink","Yellow"],answer:0},
+      {q:"CSS for bold?",options:["font-weight","font-size","font-style","font-family"],answer:0},
+      {q:"Which tag for largest heading?",options:["<h1>","<h6>","<head>","<heading>"],answer:0},
+      {q:"How many continents?",options:["5","6","7","8"],answer:2},
+      {q:"Which is a mammal?",options:["Shark","Dolphin","Tuna","Octopus"],answer:1},
+      {q:"Largest country by area?",options:["China","Russia","USA","Canada"],answer:1},
+      {q:"Which organ pumps blood?",options:["Lungs","Brain","Heart","Kidney"],answer:2},
+      {q:"Which is a fruit?",options:["Carrot","Potato","Tomato","Cabbage"],answer:2},
+      {q:"HTML tag for line break?",options:["<break>","<br>","<lb>","<hr>"],answer:1}
+    ];
+
+    // Shuffle array utility
+    function shuffle(array) {
+      let currentIndex = array.length, randomIndex;
+      while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+      }
+      return array;
+    }
+
+    // Track questions used in this quiz session
+    let usedIndexes = new Set();
+    let questions = [];
+    let current = 0, score = 0, timer = 0, timerInt, answered = false, userAnswer = null;
+    let quizSize = 10; // Number of questions per quiz
+
+    // Confetti logic
+    function confettiBurst() {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      let pieces = [];
+      for(let i=0;i<60;i++){
+        pieces.push({
+          x: Math.random()*canvas.width,
+          y: Math.random()*canvas.height/3,
+          r: Math.random()*8+6,
+          dx: (Math.random()-0.5)*6,
+          dy: Math.random()*4+3,
+          color: `hsl(${Math.random()*360},90%,70%)`
+        });
+      }
+      let frames = 0;
+      function draw(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(let p of pieces){
+          ctx.beginPath();
+          ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          p.x += p.dx;
+          p.y += p.dy;
+          p.dy += 0.13;
+        }
+        frames++;
+        if(frames<35){
+          requestAnimationFrame(draw);
+        }else{
+          ctx.clearRect(0,0,canvas.width,canvas.height);
+        }
+      }
+      draw();
+    }
+
+    // Get unused questions
+    function getUniqueQuestions() {
+      let availableIndexes = [];
+      for (let i = 0; i < questionPool.length; i++) {
+        // Only select questions whose options are array of 4 items
+        if (!usedIndexes.has(i) && Array.isArray(questionPool[i].options) && questionPool[i].options.length === 4) availableIndexes.push(i);
+      }
+      if (availableIndexes.length < quizSize) {
+        // Not enough unique questions left
+        return null;
+      }
+      let shuffled = shuffle(availableIndexes);
+      let selected = shuffled.slice(0, quizSize);
+      selected.forEach(i => usedIndexes.add(i));
+      return selected.map(i => questionPool[i]);
+    }
+
+    function startQuiz() {
+      document.getElementById("poolEndMsg").innerHTML = "";
+      let uniqueQs = getUniqueQuestions();
+      if (!uniqueQs) {
+        document.getElementById("question").innerHTML = "";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("score").innerHTML = "";
+        document.getElementById("timer").innerHTML = "";
+        document.getElementById("result").innerHTML = "";
+        document.getElementById("answerKey").innerHTML = "";
+        document.getElementById("finalScoreArea").innerHTML = "";
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("restartBtn").style.display = "none";
+        document.getElementById("poolEndMsg").innerHTML = `<div class="pool-end">All questions attempted!<br>Refresh page to play again.</div>`;
+        usedIndexes.clear();
+        return;
+      }
+      questions = uniqueQs;
+      current = 0;
+      score = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      answered = false;
+      userAnswer = null;
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("nextBtn").style.display = "none";
+      document.getElementById("restartBtn").style.display = "none";
+      document.getElementById("finalScoreArea").innerHTML = "";
+      document.getElementById("answerKey").innerHTML = "";
+      document.getElementById("score").innerHTML = `Score: ${score}/${questions.length}`;
+      document.getElementById("timer").innerHTML = `Time: 15s`;
+      document.getElementById("question").innerHTML = questions[current].q;
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      // Always show 4 options as buttons
+      if (Array.isArray(questions[current].options) && questions[current].options.length === 4) {
+        questions[current].options.forEach((opt, idx) => {
+          let btn = document.createElement("button");
+          btn.className = "option-btn";
+          btn.innerHTML = opt;
+          btn.onclick = () => checkAnswer(idx, btn);
+          optionsDiv.appendChild(btn);
+        });
+      } else {
+        // Fallback: Show missing options error
+        optionsDiv.innerHTML = "<div style='color:#bb2222;font-weight:bold;'>Options missing for this question!</div>";
+      }
+      timer = 15;
+      document.getElementById("timer").innerHTML = `Time: ${timer}s`;
+      clearInterval(timerInt);
+      timerInt = setInterval(() => {
+        timer--;
+        document.getElementById("timer").innerHTML = `Time: ${timer}s`;
+        if(timer === 0){
+          clearInterval(timerInt);
+          showCorrect(true);
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(idx, btn) {
+      if(answered) return;
+      answered = true;
+      userAnswer = idx;
+      clearInterval(timerInt);
+      let correctIdx = questions[current].answer;
+      if(idx === correctIdx){
+        btn.classList.add("correct");
+        score++;
+        document.getElementById("result").innerHTML = "🎉 Correct!";
+        confettiBurst();
+        document.getElementById("answerKey").innerHTML = `<div class="answer-key">Correct Answer: <b>${questions[current].options[correctIdx]}</b></div>`;
+      } else {
+        btn.classList.add("wrong");
+        document.getElementById("result").innerHTML = "❌ Wrong!";
+        showCorrect(false);
+      }
+      Array.from(document.getElementsByClassName("option-btn")).forEach((b, i) => {
+        b.disabled = true;
+        if(i === correctIdx) b.classList.add("correct");
+      });
+      document.getElementById("nextBtn").style.display = "block";
+    }
+
+    function showCorrect(isTimeUp) {
+      let correctIdx = questions[current].answer;
+      Array.from(document.getElementsByClassName("option-btn")).forEach((b, i) => {
+        b.disabled = true;
+        if(i === correctIdx) b.classList.add("correct");
+      });
+      document.getElementById("answerKey").innerHTML = `<div class="answer-key">Correct Answer: <b>${questions[current].options[correctIdx]}</b></div>`;
+      document.getElementById("result").innerHTML = isTimeUp ? "⏰ Time up!" : document.getElementById("result").innerHTML;
+      document.getElementById("nextBtn").style.display = "block";
+    }
+
+    function nextQuestion(){
+      current++;
+      // Clear confetti
+      const canvas = document.getElementById('confettiCanvas');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      if(current < questions.length){
+        showQuestion();
+      } else {
+        endQuiz();
+      }
+    }
+
+    function endQuiz(){
+      document.getElementById("question").innerHTML = "";
+      document.getElementById("options").innerHTML = "";
+      document.getElementById("timer").innerHTML = "";
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("answerKey").innerHTML = "";
+      document.getElementById("nextBtn").style.display = "none";
+      let msg;
+      if(score === questions.length){
+        msg = "🏆 Perfect! You scored";
+        confettiBurst();
+      } else if(score > questions.length/2){
+        msg = "👏 Great! You scored";
+      } else {
+        msg = "Keep Practicing! You scored";
+      }
+      document.getElementById("finalScoreArea").innerHTML = `
+        <div class="final-score">${msg} <br> ${score} / ${questions.length}</div>
+      `;
+      document.getElementById("restartBtn").style.display = "inline-block";
+    }
+
+    function restartQuiz(){
+      startQuiz();
+      // Clear confetti
+      const canvas = document.getElementById('confettiCanvas');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+
+    // Responsive confetti canvas
+    function resizeConfettiCanvas(){
+      const canvas = document.getElementById('confettiCanvas');
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    window.addEventListener('resize',resizeConfettiCanvas);
+    resizeConfettiCanvas();
+
+    // Start quiz
+    startQuiz();
+  </script>
+</body>
+</html>
